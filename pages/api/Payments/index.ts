@@ -1,5 +1,6 @@
 import { Payment } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { findPayments } from "../../../data/services";
 import prisma from "../../../lib/prisma";
 
 export default async function handler(
@@ -7,20 +8,15 @@ export default async function handler(
   res: NextApiResponse<Payment[] | Payment>
 ) {
   if (req.method == "GET") {
-    const { fromDate, toDate } = req.query;
-
-    const payments = await prisma.payment.findMany({
-      orderBy: {
-        date: "desc",
-      },
-      where: {
-        date: {
-          gte: new Date(fromDate as string),
-          lte: new Date(toDate as string),
-        },
-      },
-    });
-    res.status(200).json(payments ?? []);
+    const { fromDate = "1900-01-01", toDate = "2999-01-01" } = req.query;
+    
+    return findPayments(fromDate as string, toDate as string)
+      .then((resp) => {
+        res.status(200).json(resp ?? []);
+      })
+      .catch((err) => {
+        res.status(err.status);
+      });
   } else if (req.method == "POST") {
     const { title, type, total } = req.body;
     const result = await prisma.payment.create({
