@@ -1,6 +1,8 @@
 import { Payment } from "@prisma/client";
 import useSWR from "swr";
+import { ListResponse } from "../models/TableDataType";
 import { fetcher } from "./fetcher";
+import { PaymentForm } from "./models";
 
 export function fetchPayments(
   fromDate: string | undefined,
@@ -8,14 +10,17 @@ export function fetchPayments(
   pageIndex: number | undefined,
   pageSize: number | undefined
 ) {
-  const { data, error } = useSWR(
-    [`/api/Payments`, fromDate, toDate],
-    (url, fromDate, toDate) =>
-      fetcher<Payment[]>({
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { data, error, mutate } = useSWR(
+    [`/api/Payments`, fromDate, toDate, pageIndex, pageSize],
+    (url, fromDate, toDate, pageIndex, pageSize) =>
+      fetcher<ListResponse<Payment>>({
         url: url,
         params: {
-          fromDate: fromDate,
-          toDate: toDate,
+          fromDate,
+          toDate,
+          pageIndex,
+          pageSize,
         },
       })
   );
@@ -24,5 +29,14 @@ export function fetchPayments(
     data,
     isLoading: !error && !data,
     isError: error,
+    mutate
   };
+}
+
+export function createPayment(form: PaymentForm) {
+  return fetcher<Payment>({
+    url: `/api/Payments`,
+    method: "POST",
+    data: form,
+  });
 }

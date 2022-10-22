@@ -1,26 +1,25 @@
 import { Payment } from "@prisma/client";
 import { Button, DatePicker } from "antd";
-import Table, { ColumnsType, TablePaginationConfig } from "antd/lib/table";
+import Table, { TablePaginationConfig } from "antd/lib/table";
 import { FilterValue, SorterResult } from "antd/lib/table/interface";
 import type { Moment } from "moment";
 import moment from "moment";
-import { useCallback, useMemo, useState } from "react";
-import { useSWRConfig } from "swr";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import PaymentModal from "../../components/payments/PaymentModal";
 import Time from "../../components/Time";
-import { fetchPayments } from "../../data/frontend";
+import { createPayment, fetchPayments } from "../../data/frontend";
+import { PaymentForm } from "../../data/models";
 import { TableParams } from "../../models/TableDataType";
 
 const { RangePicker } = DatePicker;
-const dateFormat = "YYYY/MM/DD";
+const dateFormat = "YYYY-MM-DD";
 type RangeValue = [Moment | null, Moment | null] | null;
 
-export default function index() {
-  const { mutate } = useSWRConfig();
+export default function PaymentPage() {
   const [openPaymentModal, setOpenPaymentModal] = useState(false);
   const [dateRangeValue, setDateRangeValue] = useState<RangeValue>([
-    moment("2022/10/01", dateFormat),
-    moment("2022/10/31", dateFormat),
+    moment("2022-10-01", dateFormat),
+    moment("2022-10-31", dateFormat),
   ]);
 
   const [tableParams, setTableParams] = useState<TableParams>({
@@ -72,12 +71,22 @@ export default function index() {
     []
   );
 
-  const { data, isLoading } = fetchPayments(
-    dateRangeValue?.[0]?.format("YYYY-MM-DD"),
-    dateRangeValue?.[1]?.format("YYYY-MM-DD"),
-    tableParams.pagination?.current,
+  const { data, isLoading, mutate } = fetchPayments(
+    dateRangeValue?.[0]?.format(dateFormat),
+    dateRangeValue?.[1]?.format(dateFormat),
+    tableParams.pagination!.current! - 1,
     tableParams.pagination?.pageSize
   );
+
+  useEffect(() => {
+    setTableParams((prev) => ({
+      ...prev,
+      pagination: {
+        ...prev.pagination,
+        total: data?.total,
+      },
+    }));
+  }, [data]);
 
   return (
     <>
@@ -96,7 +105,7 @@ export default function index() {
           loading={isLoading}
           columns={columns}
           rowKey={(record) => record.id}
-          dataSource={data}
+          dataSource={data?.items}
           pagination={tableParams.pagination}
           onChange={handleTableChange}
         />
@@ -107,14 +116,10 @@ export default function index() {
         onCancel={() => {
           setOpenPaymentModal(false);
         }}
-        onSubmitForm={async (data) => {
-          await fetch("/api/Payments", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-          });
+        onSubmitForm={async (data: PaymentForm) => {
+          await createPayment(data);
           setOpenPaymentModal(false);
-          mutate("/api/Payments");
+          mutate();
         }}
       />
     </>
