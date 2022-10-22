@@ -1,4 +1,6 @@
 import { Payment } from "@prisma/client";
+import { hash } from "argon2";
+import { ISignUp } from "../common/validation/auth";
 import prisma from "../lib/prisma";
 import { ListResponse } from "../models/TableDataType";
 
@@ -21,7 +23,7 @@ export async function findPayments(
         lte: maxDate,
       },
     },
-  });  
+  });
 
   const items = await prisma.payment.findMany({
     skip: pageIndex * pageSize,
@@ -56,5 +58,19 @@ export async function insertPayment(
       total,
       date,
     },
+  });
+}
+
+export async function findUser(email: string) {
+  return await prisma.user.findFirst({
+    where: { email },
+  });
+}
+
+export async function createUser({ email, username, password }: ISignUp) {
+  const hashedPassword = await hash(password);
+
+  return await prisma.user.create({
+    data: { username, email, password: hashedPassword },
   });
 }
