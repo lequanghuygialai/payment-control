@@ -1,20 +1,32 @@
+import { Payment } from "@prisma/client";
 import { Button, Form, Input, InputNumber, Modal, Radio, Select } from "antd";
+import { useEffect } from "react";
+import { PaymentForm } from "../../data/models";
 
 export interface PaymentModalProps {
   isModalOpen: boolean;
-  onSubmitForm: (data: any) => void;
+  model: Payment | null;
+  onSubmit: (data: PaymentForm) => void;
   onCancel: () => void;
 }
 
 export default function PaymentModal({
   isModalOpen,
-  onSubmitForm,
-  onCancel
+  model,
+  onSubmit,
+  onCancel,
 }: PaymentModalProps) {
-  const [form] = Form.useForm();
-  const handleFormSubmit = (values: any) => {
-    onSubmitForm(values);
+  const [form] = Form.useForm<PaymentForm>();
+  const handleFormSubmit = async (values: PaymentForm) => {
+    await onSubmit(values);
+    form.resetFields();
   };
+
+  useEffect(() => {
+    if (model != null) {
+      form.setFieldsValue(model);
+    }
+  }, [form, model]);
 
   return (
     <Modal
@@ -35,6 +47,7 @@ export default function PaymentModal({
         onFinish={handleFormSubmit}
         initialValues={{ type: "Expense" }}
       >
+        <Form.Item name="id" hidden></Form.Item>
         <Form.Item
           name="type"
           label="Type"

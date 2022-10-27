@@ -45,19 +45,20 @@ export async function findPayments(
   };
 }
 
-export async function insertPayment(
-  title: string,
-  type: string,
-  total: number,
-  date: Date
-) {
+export async function insertPayment(data: Payment) {
   return await prisma.payment.create({
-    data: {
-      title,
-      type,
-      total,
-      date,
+    data: { ...data, date: new Date() },
+  });
+}
+
+export async function updatePayment(data: Payment) {
+  console.log({data});
+  
+  return await prisma.payment.update({
+    where: {
+      id: data.id,
     },
+    data: data,
   });
 }
 

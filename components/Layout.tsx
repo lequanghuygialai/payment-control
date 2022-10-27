@@ -18,6 +18,7 @@ import {
 import { ItemType } from "antd/lib/menu/hooks/useItems";
 import MenuItem from "antd/lib/menu/MenuItem";
 import { signOut } from "next-auth/react";
+import Head from "next/head";
 import React, { useMemo, useState } from "react";
 const { Header, Footer, Sider, Content } = Layout;
 
@@ -61,75 +62,90 @@ export default function LayoutComponent({ children }: LayoutProps) {
     ];
   }, []);
 
-  const menu = (
-    <Menu
-      items={[
-        {
-          key: "1",
-          label: "Logout",
-          onClick: () => signOut(),
-        },
-      ]}
-    />
+  const profileMenu = useMemo(
+    () => (
+      <Menu
+        items={[
+          {
+            key: "1",
+            label: "Logout",
+            onClick: () => signOut(),
+          },
+        ]}
+      />
+    ),
+    []
   );
 
   const [visible, setVisible] = useState(false);
 
   return (
-    <Layout>
-      <Header className="flex flex-row justify-between " style={{ padding: 0 }}>
-        <div className="ml-3">
-          <Button
-            className="md:!hidden"
-            type="primary"
-            icon={<MenuOutlined />}
-            onClick={() => setVisible(true)}
-          />
-        </div>
-
-        <div className="mr-3">
-          <Dropdown overlay={menu} placement="bottom">
-            <Avatar src="https://joeschmoe.io/api/v1/random" />
-          </Dropdown>
-        </div>
-      </Header>
-
+    <>
+      <Head>
+        <title>Payments control</title>
+      </Head>
       <Layout>
-        <Sider className="hidden md:block" theme="light">
-          <Drawer
-            placement="left"
-            bodyStyle={drawerBodyStyle}
-            onClose={() => setVisible(false)}
-            open={visible}
-          >
+        <Header
+          className="flex flex-row justify-between "
+          style={{ padding: 0 }}
+        >
+          <div className="ml-3">
+            <Button
+              className="md:!hidden"
+              type="primary"
+              icon={<MenuOutlined />}
+              onClick={() => setVisible(true)}
+            />
+          </div>
+
+          <div className="mr-3">
+            <Dropdown
+              overlay={profileMenu}
+              placement="bottom"
+              trigger={["click"]}
+            >
+              <Avatar src="https://joeschmoe.io/api/v1/random" />
+            </Dropdown>
+          </div>
+        </Header>
+
+        <Layout>
+          <Sider className="hidden md:block" theme="light">
+            <Drawer
+              placement="left"
+              bodyStyle={drawerBodyStyle}
+              onClose={() => setVisible(false)}
+              open={visible}
+            >
+              <Menu
+                defaultSelectedKeys={["1"]}
+                mode="inline"
+                items={items as unknown as ItemType[]}
+              />
+            </Drawer>
+
             <Menu
               defaultSelectedKeys={["1"]}
               mode="inline"
+              className="hidden md:block w-full"
               items={items as unknown as ItemType[]}
             />
-          </Drawer>
+          </Sider>
+          <Content className="h-[100vh]">
+            <Breadcrumb style={{ margin: "16px 0.75rem" }}>
+              <Breadcrumb.Item>Menu</Breadcrumb.Item>
+              <Breadcrumb.Item>Breadcrumb</Breadcrumb.Item>
+            </Breadcrumb>
+            <div className="site-layout-background p-3">{children}</div>
+          </Content>
+        </Layout>
 
-          <Menu
-            defaultSelectedKeys={["1"]}
-            mode="inline"
-            className="hidden md:block w-full"
-            items={items as unknown as ItemType[]}
-          />
-        </Sider>
-        <Content className="h-[100vh]">
-          <Breadcrumb style={{ margin: "16px 0.75rem" }}>
-            <Breadcrumb.Item>Menu</Breadcrumb.Item>
-            <Breadcrumb.Item>Breadcrumb</Breadcrumb.Item>
-          </Breadcrumb>
-          <div className="site-layout-background p-3">{children}</div>
-        </Content>
+        <Footer
+          style={{ textAlign: "center", background: "#001529", color: "white" }}
+        >
+          Ant Design ©2018
+        </Footer>
       </Layout>
-
-      <Footer
-        style={{ textAlign: "center", background: "#001529", color: "white" }}
-      >
-        Ant Design ©2018
-      </Footer>
-    </Layout>
+    </>
   );
 }

@@ -2,7 +2,7 @@ import { Payment } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../../../auth/auth";
-import { insertPayment, findPayments } from "../../../data/services";
+import { insertPayment, findPayments, updatePayment } from "../../../data/services";
 import { ListResponse } from "../../../models/TableDataType";
 
 export default async function handler(
@@ -31,9 +31,15 @@ export default async function handler(
         res.status(err.status);
       });
   } else if (req.method == "POST") {
-    const { title, type, total, date = new Date() }: Payment = req.body;
-
-    return insertPayment(title, type, total, date)
+    return insertPayment(req.body)
+      .then((resp) => {
+        res.status(200).json(resp);
+      })
+      .catch((err) => {
+        res.status(err.status);
+      });
+  } else if (req.method == "PUT") {    
+    return updatePayment(req.body)
       .then((resp) => {
         res.status(200).json(resp);
       })

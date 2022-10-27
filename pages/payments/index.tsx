@@ -1,6 +1,7 @@
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Payment } from "@prisma/client";
-import { Button, DatePicker } from "antd";
-import Table, { TablePaginationConfig } from "antd/lib/table";
+import { Button, DatePicker, Space, Tag, Tooltip } from "antd";
+import Table, { ColumnsType, TablePaginationConfig } from "antd/lib/table";
 import { FilterValue, SorterResult } from "antd/lib/table/interface";
 import { Session } from "inspector";
 import type { Moment } from "moment";
@@ -12,13 +13,18 @@ import { authOptions } from "../../auth/auth";
 import LayoutComponent from "../../components/Layout";
 import PaymentModal from "../../components/payments/PaymentModal";
 import Time from "../../components/Time";
-import { createPayment, fetchPayments } from "../../data/frontend";
+import {
+  createPayment,
+  fetchPayments,
+  updatePayment,
+} from "../../data/frontend";
 import { PaymentForm } from "../../data/models";
 import { TableParams } from "../../models/TableDataType";
 
 const { RangePicker } = DatePicker;
 const dateFormat = "YYYY-MM-DD";
 type RangeValue = [Moment | null, Moment | null] | null;
+export declare type FixedType = "left" | "right" | boolean;
 
 export interface PaymentPageProps {
   session: Session;
@@ -30,34 +36,72 @@ function PaymentPage({ session }: PaymentPageProps) {
     moment("2022-10-01", dateFormat),
     moment("2022-10-31", dateFormat),
   ]);
-
   const [tableParams, setTableParams] = useState<TableParams>({
     pagination: {
       current: 1,
       pageSize: 10,
     },
   });
+  const [paymentItemSelected, setPaymentItemSelected] =
+    useState<Payment | null>(null);
 
-  const columns = useMemo(
+  const columns = useMemo<ColumnsType<Payment>>(
     () => [
       {
         title: "Title",
         dataIndex: "title",
+        width: 20,
+        ellipsis: true,
       },
       {
         title: "Total",
         dataIndex: "total",
+        width: 20,
+        ellipsis: true,
       },
       {
         title: "Type",
         dataIndex: "type",
+        width: 20,
+        ellipsis: true,
+        render: (type: string) => {
+          const color = type == "Expense" ? "volcano" : "geekblue";
+          return <Tag color={color}>{type.toUpperCase()}</Tag>;
+        },
       },
       {
         title: "Date",
         dataIndex: "date",
+        width: 30,
+        ellipsis: true,
         render: (date: Date) => {
           return <Time date={date} />;
         },
+      },
+      {
+        title: "Action",
+        key: "action",
+        fixed: "right",
+        width: 15,
+        ellipsis: true,
+        render: (_: any, record: Payment) => (
+          <Space size="middle">
+            <Tooltip title="Edit">
+              <Button
+                type="default"
+                shape="circle"
+                icon={<EditOutlined />}
+                onClick={() => {
+                  setPaymentItemSelected(record);
+                  setOpenPaymentModal(true);
+                }}
+              />
+            </Tooltip>
+            <Tooltip title="Remove">
+              <Button type="ghost" shape="circle" icon={<DeleteOutlined />} />
+            </Tooltip>
+          </Space>
+        ),
       },
     ],
     []
@@ -117,16 +161,23 @@ function PaymentPage({ session }: PaymentPageProps) {
           dataSource={data?.items}
           pagination={tableParams.pagination}
           onChange={handleTableChange}
+          scroll={{ x: 'calc(300px + 50%)' }}
         />
       </div>
 
       <PaymentModal
         isModalOpen={openPaymentModal}
+        model={paymentItemSelected}
         onCancel={() => {
           setOpenPaymentModal(false);
         }}
-        onSubmitForm={async (data: PaymentForm) => {
-          await createPayment(data);
+        onSubmit={async (data: PaymentForm) => {
+          if (data.id == null) {
+            await createPayment(data);
+          } else {
+            await updatePayment(data);
+          }
+
           setOpenPaymentModal(false);
           mutate();
         }}
@@ -147,7 +198,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     context.req,
     context.res,
     authOptions
-  );  
+  );
 
   return {
     props: {

@@ -29,7 +29,7 @@ export function fetchPayments(
     data,
     isLoading: !error && !data,
     isError: error,
-    mutate
+    mutate,
   };
 }
 
@@ -37,6 +37,14 @@ export function createPayment(form: PaymentForm) {
   return fetcher<Payment>({
     url: `/api/Payments`,
     method: "POST",
+    data: form,
+  });
+}
+
+export function updatePayment(form: PaymentForm) {
+  return fetcher<Payment>({
+    url: `/api/Payments`,
+    method: "PUT",
     data: form,
   });
 }
