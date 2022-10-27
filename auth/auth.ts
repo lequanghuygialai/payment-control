@@ -4,7 +4,7 @@ import { loginSchema } from "../common/validation/auth";
 import prisma from "../lib/prisma";
 import { verify } from "argon2";
 
-export const nextAuthOptions: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     Credentials({
       name: "credentials",
@@ -20,7 +20,7 @@ export const nextAuthOptions: NextAuthOptions = {
         const creds = await loginSchema.parseAsync(credentials);
 
         const user = await prisma.user.findFirst({
-          where: { email: creds.email },
+          where: { username: creds.username },
         });
 
         if (!user) {
@@ -50,13 +50,19 @@ export const nextAuthOptions: NextAuthOptions = {
 
       return token;
     },
+    session: async ({ session, token }) => {
+      return {
+        ...session,
+        user: {
+          name: token.name ?? '',
+          email: token.email ?? '',
+        }
+      };
+    },
   },
-  jwt: {
-    secret: "super-secret",
-    maxAge: 15 * 24 * 30 * 60, // 15 days
-  },
+  secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: "/",
-    newUser: "/sign-up",
+    signIn: "/login",
+    error: "/login",
   },
 };

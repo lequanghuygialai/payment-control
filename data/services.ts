@@ -67,7 +67,7 @@ export async function findUser(email: string) {
   });
 }
 
-export async function createUser({ email, username, password }: ISignUp) {
+export async function createUser({ username, email, password }: ISignUp) {
   const hashedPassword = await hash(password);
 
   return await prisma.user.create({

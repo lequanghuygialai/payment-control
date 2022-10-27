@@ -6,11 +6,19 @@ import {
   TeamOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import {
+  Avatar,
+  Breadcrumb,
+  Button,
+  Drawer,
+  Dropdown,
+  Layout,
+  Menu,
+} from "antd";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
 import MenuItem from "antd/lib/menu/MenuItem";
+import { signOut } from "next-auth/react";
 import React, { useMemo, useState } from "react";
-import { Avatar, Breadcrumb, Button, Drawer, Layout, Menu } from "antd";
-
 const { Header, Footer, Sider, Content } = Layout;
 
 const drawerBodyStyle: React.CSSProperties = {
@@ -18,7 +26,7 @@ const drawerBodyStyle: React.CSSProperties = {
 };
 
 export interface LayoutProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export default function LayoutComponent({ children }: LayoutProps) {
@@ -53,6 +61,18 @@ export default function LayoutComponent({ children }: LayoutProps) {
     ];
   }, []);
 
+  const menu = (
+    <Menu
+      items={[
+        {
+          key: "1",
+          label: "Logout",
+          onClick: () => signOut(),
+        },
+      ]}
+    />
+  );
+
   const [visible, setVisible] = useState(false);
 
   return (
@@ -68,7 +88,9 @@ export default function LayoutComponent({ children }: LayoutProps) {
         </div>
 
         <div className="mr-3">
-          <Avatar src="https://joeschmoe.io/api/v1/random" />
+          <Dropdown overlay={menu} placement="bottom">
+            <Avatar src="https://joeschmoe.io/api/v1/random" />
+          </Dropdown>
         </div>
       </Header>
 
@@ -103,7 +125,9 @@ export default function LayoutComponent({ children }: LayoutProps) {
         </Content>
       </Layout>
 
-      <Footer style={{ textAlign: "center", background: "#001529", color: "white" }}>
+      <Footer
+        style={{ textAlign: "center", background: "#001529", color: "white" }}
+      >
         Ant Design ©2018
       </Footer>
     </Layout>

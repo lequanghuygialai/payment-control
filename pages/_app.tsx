@@ -1,17 +1,17 @@
-import "../styles/globals.css";
-import type { AppProps } from "next/app";
-import "antd/dist/antd.css";
-import LayoutComponent from "../components/Layout";
 import "antd/dist/antd.css";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
   BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
   Title,
   Tooltip,
-  Legend,
 } from "chart.js";
+import { SessionProvider } from "next-auth/react";
+import { AppPropsWithLayout, GetLayout } from "../common/common";
+import AnonymousLayout from "../components/AnonymousLayout";
+import "../styles/globals.css";
 
 ChartJS.register(
   CategoryScale,
@@ -22,14 +22,22 @@ ChartJS.register(
   Legend
 );
 
-function MyApp({ Component, pageProps }: AppProps) {
-  return (
-    <>
-      <LayoutComponent>
-        <Component {...pageProps} />
-      </LayoutComponent>
-    </>
-  );
+function MyApp({
+  Component,
+  pageProps: { session, ...pageProps },
+}: AppPropsWithLayout) {
+  const getLayout: GetLayout =
+    Component.getLayout ??
+    ((page) => <AnonymousLayout>{page}</AnonymousLayout>);
+  if (Component.anonymous) {
+    return <>{getLayout(<Component {...pageProps} />)}</>;
+  } else {
+    return (
+      <SessionProvider session={session}>
+        {getLayout(<Component {...pageProps} />)}
+      </SessionProvider>
+    );
+  }
 }
 
 export default MyApp;

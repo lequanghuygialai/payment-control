@@ -1,12 +1,20 @@
 import { Payment } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { unstable_getServerSession } from "next-auth";
+import { authOptions } from "../../../auth/auth";
 import { insertPayment, findPayments } from "../../../data/services";
 import { ListResponse } from "../../../models/TableDataType";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ListResponse<Payment> | Payment>
+  res: NextApiResponse<ListResponse<Payment> | Payment | string>
 ) {
+  const session = await unstable_getServerSession(req, res, authOptions);
+  if (session == undefined) {
+    res.status(401).json("Not logged in");
+    return;
+  }
+
   if (req.method == "GET") {
     const { fromDate, toDate, pageIndex = 0, pageSize = 10 } = req.query;
 

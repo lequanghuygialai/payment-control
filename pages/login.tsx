@@ -1,12 +1,18 @@
 import { Button, Form, Input } from "antd";
 import { GetServerSideProps } from "next";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/router";
 import { useCallback } from "react";
 import { ILogin } from "../common/validation/auth";
 
-export default function index() {
+function LoginPage() {
+  const { query } = useRouter();
+  const { callbackUrl = "/payments", error } = query;
   const onFinish = useCallback(async (data: ILogin) => {
-    await signIn("credentials", { ...data, callbackUrl: "/payments" });
+    await signIn("credentials", {
+      ...data,
+      callbackUrl: callbackUrl as string,
+    });
   }, []);
 
   return (
@@ -20,7 +26,7 @@ export default function index() {
     >
       <Form.Item
         label="Username"
-        name="email"
+        name="username"
         rules={[{ required: true, message: "Please input your email!" }]}
       >
         <Input />
@@ -43,7 +49,27 @@ export default function index() {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+LoginPage.anonymous = true;
+
+export default LoginPage;
+
+export const getServerSideProps: GetServerSideProps = async ({
+  req,
+  res,
+  params,
+}) => {
+  // const session = await unstable_getServerSession(req, res, authOptions);
+
+  // if (session?.user != null) {
+  //   //Authenticated
+  //   return {
+  //     redirect: {
+  //       destination: "/payments",
+  //       permanent: false,
+  //     },
+  //   };
+  // }
+
   return {
     props: {},
   };

@@ -2,9 +2,14 @@ import { Payment } from "@prisma/client";
 import { Button, DatePicker } from "antd";
 import Table, { TablePaginationConfig } from "antd/lib/table";
 import { FilterValue, SorterResult } from "antd/lib/table/interface";
+import { Session } from "inspector";
 import type { Moment } from "moment";
 import moment from "moment";
+import { GetServerSideProps } from "next";
+import { unstable_getServerSession } from "next-auth";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { authOptions } from "../../auth/auth";
+import LayoutComponent from "../../components/Layout";
 import PaymentModal from "../../components/payments/PaymentModal";
 import Time from "../../components/Time";
 import { createPayment, fetchPayments } from "../../data/frontend";
@@ -15,7 +20,11 @@ const { RangePicker } = DatePicker;
 const dateFormat = "YYYY-MM-DD";
 type RangeValue = [Moment | null, Moment | null] | null;
 
-export default function PaymentPage() {
+export interface PaymentPageProps {
+  session: Session;
+}
+
+function PaymentPage({ session }: PaymentPageProps) {
   const [openPaymentModal, setOpenPaymentModal] = useState(false);
   const [dateRangeValue, setDateRangeValue] = useState<RangeValue>([
     moment("2022-10-01", dateFormat),
@@ -125,3 +134,24 @@ export default function PaymentPage() {
     </>
   );
 }
+
+PaymentPage.getLayout = (page: JSX.Element) => (
+  <LayoutComponent>{page}</LayoutComponent>
+);
+PaymentPage.anonymous = false;
+
+export default PaymentPage;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );  
+
+  return {
+    props: {
+      session,
+    },
+  };
+};
