@@ -9,8 +9,7 @@ import {
   Radio,
 } from "antd";
 import moment from "moment";
-import { useCallback, useEffect } from "react";
-import { number } from "zod";
+import { useCallback, useEffect, useState } from "react";
 import { PaymentForm } from "../../data/models";
 
 export interface PaymentModalProps {
@@ -26,9 +25,13 @@ export default function PaymentModal({
   onSubmit,
   onCancel,
 }: PaymentModalProps) {
+  const [loading, setLoading] = useState(false);
+
   const [form] = Form.useForm<PaymentForm>();
   const handleFormSubmit = async (value: PaymentForm) => {
+    setLoading(true);
     await onSubmit({ ...value });
+    setLoading(false);
     form.resetFields();
   };
 
@@ -49,7 +52,12 @@ export default function PaymentModal({
       open={isModalOpen}
       onCancel={handleModalCancel}
       footer={[
-        <Button form="payment-form" key="submit" htmlType="submit">
+        <Button
+          loading={loading}
+          form="payment-form"
+          key="submit"
+          htmlType="submit"
+        >
           Submit
         </Button>,
       ]}

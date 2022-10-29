@@ -16,7 +16,7 @@ export default async function handler(
   const { id } = req.query;
 
   if (req.method == "PUT") {
-    return updatePayment({ ...req.body, id })
+    return updatePayment({ ...req.body, id, updatedBy: session.user.id })
       .then((resp) => {
         res.status(200).json(resp);
       })
