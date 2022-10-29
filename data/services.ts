@@ -1,8 +1,8 @@
 import { Payment } from "@prisma/client";
 import { hash } from "argon2";
 import { ISignUp } from "../common/validation/auth";
-import prisma from "../lib/prisma";
 import { ListResponse } from "../models/TableDataType";
+import { prisma } from "../common/prisma";
 
 export async function findPayments(
   fromDate: string = "1900-01-01",
@@ -16,27 +16,25 @@ export async function findPayments(
   const maxDate = new Date(toDate as string);
   maxDate.setHours(23, 59, 59, 9999);
 
-  const total = await prisma.payment.count({
-    where: {
-      date: {
-        gte: minDate,
-        lte: maxDate,
-      },
+  const whereCondition = {
+    isDeleted: false,
+    date: {
+      gte: minDate,
+      lte: maxDate,
     },
+  };
+
+  const total = await prisma.payment.count({
+    where: whereCondition,
   });
 
   const items = await prisma.payment.findMany({
     skip: pageIndex * pageSize,
-    take: 10,
+    take: +pageSize,
     orderBy: {
       date: "desc",
     },
-    where: {
-      date: {
-        gte: minDate,
-        lte: maxDate,
-      },
-    },
+    where: whereCondition,
   });
 
   return {
@@ -45,20 +43,64 @@ export async function findPayments(
   };
 }
 
-export async function insertPayment(data: Payment) {
-  return await prisma.payment.create({
-    data: { ...data, date: new Date() },
+export async function sumPaymentTotal(
+  fromDate: string = "1900-01-01",
+  toDate: string = "2900-01-01",
+  type: string
+) {
+  const minDate = new Date(fromDate as string);
+  minDate.setHours(0, 0, 0, 0);
+
+  const maxDate = new Date(toDate as string);
+  maxDate.setHours(23, 59, 59, 9999);
+
+  const whereCondition = {
+    isDeleted: false,
+    type: type,
+    date: {
+      gte: minDate,
+      lte: maxDate,
+    },
+  };
+
+  const total = await prisma.payment.aggregate({
+    _sum: {
+      total: true,
+    },
+    where: whereCondition,
   });
+
+  return total._sum.total;
+}
+
+export async function insertPayment(data: Payment) {
+  try {
+    return await prisma.payment.create({
+      data: data,
+    });
+  } catch (e: any) {
+    console.error(e.message);
+    throw e;
+  }
 }
 
 export async function updatePayment(data: Payment) {
-  console.log({data});
-  
   return await prisma.payment.update({
     where: {
       id: data.id,
     },
     data: data,
+  });
+}
+
+export async function deletePayment(id: string) {
+  return await prisma.payment.update({
+    where: {
+      id: id,
+    },
+    data: {
+      isDeleted: true,
+    },
   });
 }
 

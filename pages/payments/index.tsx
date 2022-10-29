@@ -1,6 +1,20 @@
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import {
+  ArrowDownOutlined,
+  ArrowUpOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 import { Payment } from "@prisma/client";
-import { Button, DatePicker, Space, Tag, Tooltip } from "antd";
+import {
+  Button,
+  DatePicker,
+  Modal,
+  Skeleton,
+  Space,
+  Statistic,
+  Tag,
+} from "antd";
 import Table, { ColumnsType, TablePaginationConfig } from "antd/lib/table";
 import { FilterValue, SorterResult } from "antd/lib/table/interface";
 import { Session } from "inspector";
@@ -15,12 +29,15 @@ import PaymentModal from "../../components/payments/PaymentModal";
 import Time from "../../components/Time";
 import {
   createPayment,
+  deletePayment,
   fetchPayments,
+  fetchTotalPayment,
   updatePayment,
 } from "../../data/frontend";
 import { PaymentForm } from "../../data/models";
 import { TableParams } from "../../models/TableDataType";
 
+const { confirm } = Modal;
 const { RangePicker } = DatePicker;
 const dateFormat = "YYYY-MM-DD";
 type RangeValue = [Moment | null, Moment | null] | null;
@@ -33,8 +50,8 @@ export interface PaymentPageProps {
 function PaymentPage({ session }: PaymentPageProps) {
   const [openPaymentModal, setOpenPaymentModal] = useState(false);
   const [dateRangeValue, setDateRangeValue] = useState<RangeValue>([
-    moment("2022-10-01", dateFormat),
-    moment("2022-10-31", dateFormat),
+    moment(moment().startOf("month"), dateFormat),
+    moment(moment().endOf("month"), dateFormat),
   ]);
   const [tableParams, setTableParams] = useState<TableParams>({
     pagination: {
@@ -50,7 +67,7 @@ function PaymentPage({ session }: PaymentPageProps) {
       {
         title: "Title",
         dataIndex: "title",
-        width: 20,
+        width: 30,
         ellipsis: true,
       },
       {
@@ -58,6 +75,9 @@ function PaymentPage({ session }: PaymentPageProps) {
         dataIndex: "total",
         width: 20,
         ellipsis: true,
+        render: (total: number) => {
+          return <>{`${total}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</>;
+        },
       },
       {
         title: "Type",
@@ -82,24 +102,27 @@ function PaymentPage({ session }: PaymentPageProps) {
         title: "Action",
         key: "action",
         fixed: "right",
-        width: 15,
+        width: 30,
         ellipsis: true,
         render: (_: any, record: Payment) => (
           <Space size="middle">
-            <Tooltip title="Edit">
-              <Button
-                type="default"
-                shape="circle"
-                icon={<EditOutlined />}
-                onClick={() => {
-                  setPaymentItemSelected(record);
-                  setOpenPaymentModal(true);
-                }}
-              />
-            </Tooltip>
-            <Tooltip title="Remove">
-              <Button type="ghost" shape="circle" icon={<DeleteOutlined />} />
-            </Tooltip>
+            <Button
+              type="default"
+              shape="circle"
+              icon={<EditOutlined />}
+              onClick={() => {
+                setPaymentItemSelected(record);
+                setOpenPaymentModal(true);
+              }}
+            />
+            <Button
+              type="ghost"
+              shape="circle"
+              icon={<DeleteOutlined />}
+              onClick={() => {
+                showDeleteConfirm(record);
+              }}
+            />
           </Space>
         ),
       },
@@ -131,6 +154,98 @@ function PaymentPage({ session }: PaymentPageProps) {
     tableParams.pagination?.pageSize
   );
 
+  const { data: paymentTotalYesterday, mutate: mutatePaymentTotalYesterday } =
+    fetchTotalPayment(
+      moment().subtract(1, "days").format(dateFormat),
+      moment().subtract(1, "days").format(dateFormat)
+    );
+
+  const { data: paymentTotalToday, mutate: mutatePaymentTotalToday } =
+    fetchTotalPayment(moment().format(dateFormat), moment().format(dateFormat));
+
+  const { data: paymentTotalThisMonth, mutate: mutatePaymentTotalThisMonth } =
+    fetchTotalPayment(
+      moment().startOf("month").format(dateFormat),
+      moment().endOf("month").format(dateFormat)
+    );
+
+  const showDeleteConfirm = useCallback((payment: Payment) => {
+    confirm({
+      title: `Are you sure delete ${payment.title} - ${payment.total}?`,
+      icon: <ExclamationCircleOutlined />,
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
+      async onOk() {
+        await deletePayment(payment.id);
+        mutateAll();
+      },
+    });
+  }, []);
+
+  const statisticItemRender = useCallback(
+    (
+      title: string,
+      value: number,
+      color: string,
+      icon: JSX.Element,
+      suffix: string
+    ) => (
+      <div className="border-solid border border-grey rounded bg-white">
+        <Statistic
+          className="p-2"
+          title={title}
+          value={value}
+          precision={0}
+          valueStyle={{ color }}
+          prefix={icon}
+          suffix={suffix}
+        />
+      </div>
+    ),
+    []
+  );
+
+  const statisticByDayRender = useCallback(() => {
+    if (paymentTotalYesterday != undefined && paymentTotalToday != undefined) {
+      const isUp = paymentTotalToday > paymentTotalYesterday;
+
+      return (
+        <>
+          {statisticItemRender(
+            "Today",
+            paymentTotalToday ?? 0,
+            isUp ? "#3f8600" : "#cf1322",
+            isUp ? <ArrowUpOutlined /> : <ArrowDownOutlined />,
+            "vnd"
+          )}
+          {statisticItemRender(
+            "Yesterday",
+            paymentTotalYesterday ?? 0,
+            "grey",
+            <></>,
+            "vnd"
+          )}
+          {statisticItemRender(
+            "This month",
+            paymentTotalThisMonth ?? 0,
+            "grey",
+            <></>,
+            "vnd"
+          )}
+        </>
+      );
+    }
+    return <Skeleton />;
+  }, [paymentTotalYesterday, paymentTotalToday]);
+
+  const mutateAll = useCallback(() => {
+    mutate();
+    mutatePaymentTotalYesterday();
+    mutatePaymentTotalToday();
+    mutatePaymentTotalThisMonth();
+  }, []);
+
   useEffect(() => {
     setTableParams((prev) => ({
       ...prev,
@@ -143,26 +258,32 @@ function PaymentPage({ session }: PaymentPageProps) {
 
   return (
     <>
-      <div className="flex flex-row justify-between my-2">
-        <RangePicker
-          defaultValue={dateRangeValue}
-          onCalendarChange={(val) => setDateRangeValue(val)}
-        />
-        <Button type="primary" onClick={() => setOpenPaymentModal(true)}>
-          Create
-        </Button>
+      <div className="flex flex-col sm:flex-row gap-2 mb-2">
+        {statisticByDayRender()}
       </div>
 
-      <div className="my-2">
-        <Table
-          loading={isLoading}
-          columns={columns}
-          rowKey={(record) => record.id}
-          dataSource={data?.items}
-          pagination={tableParams.pagination}
-          onChange={handleTableChange}
-          scroll={{ x: 'calc(300px + 50%)' }}
-        />
+      <div className="block bg-white">
+        <div className="flex flex-row justify-between p-2">
+          <RangePicker
+            defaultValue={dateRangeValue}
+            onCalendarChange={(val) => setDateRangeValue(val)}
+          />
+          <Button type="primary" onClick={() => setOpenPaymentModal(true)}>
+            Create
+          </Button>
+        </div>
+
+        <div className="p-2">
+          <Table
+            loading={isLoading}
+            columns={columns}
+            rowKey={(record) => record.id}
+            dataSource={data?.items}
+            pagination={tableParams.pagination}
+            onChange={handleTableChange}
+            scroll={{ x: "calc(450px + 50%)" }}
+          />
+        </div>
       </div>
 
       <PaymentModal
@@ -179,7 +300,7 @@ function PaymentPage({ session }: PaymentPageProps) {
           }
 
           setOpenPaymentModal(false);
-          mutate();
+          mutateAll();
         }}
       />
     </>

@@ -1,6 +1,16 @@
 import { Payment } from "@prisma/client";
-import { Button, Form, Input, InputNumber, Modal, Radio, Select } from "antd";
-import { useEffect } from "react";
+import {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Radio,
+} from "antd";
+import moment from "moment";
+import { useCallback, useEffect } from "react";
+import { number } from "zod";
 import { PaymentForm } from "../../data/models";
 
 export interface PaymentModalProps {
@@ -17,10 +27,15 @@ export default function PaymentModal({
   onCancel,
 }: PaymentModalProps) {
   const [form] = Form.useForm<PaymentForm>();
-  const handleFormSubmit = async (values: PaymentForm) => {
-    await onSubmit(values);
+  const handleFormSubmit = async (value: PaymentForm) => {
+    await onSubmit({ ...value });
     form.resetFields();
   };
+
+  const handleModalCancel = useCallback(() => {
+    onCancel();
+    form.resetFields();
+  }, []);
 
   useEffect(() => {
     if (model != null) {
@@ -32,7 +47,7 @@ export default function PaymentModal({
     <Modal
       title="Add a new note"
       open={isModalOpen}
-      onCancel={onCancel}
+      onCancel={handleModalCancel}
       footer={[
         <Button form="payment-form" key="submit" htmlType="submit">
           Submit
@@ -68,9 +83,29 @@ export default function PaymentModal({
         <Form.Item
           name="total"
           label="Total"
-          rules={[{ required: true, message: "Missing total" }]}
+          rules={[
+            { type: "number", min: 0, message: "Cannot be less than 0" },
+            { required: true, message: "Missing total" },
+          ]}
         >
-          <InputNumber />
+          <InputNumber
+            formatter={(value) =>
+              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+          />
+        </Form.Item>
+        <Form.Item
+          name="date"
+          label="Date"
+          required
+          getValueProps={(value) => ({ value: moment(value) })}
+          initialValue={moment().format("YYYY-MM-DDTHH:mm:ssZ")}
+          rules={[
+            { type: "date" },
+            { required: true, message: "Missing date" },
+          ]}
+        >
+          <DatePicker showTime={{ format: "HH:mm" }} />
         </Form.Item>
       </Form>
     </Modal>

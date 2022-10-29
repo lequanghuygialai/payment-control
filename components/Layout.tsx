@@ -1,10 +1,6 @@
 import {
-  DesktopOutlined,
-  FileOutlined,
   MenuOutlined,
-  PieChartOutlined,
-  TeamOutlined,
-  UserOutlined,
+  PieChartOutlined
 } from "@ant-design/icons";
 import {
   Avatar,
@@ -13,7 +9,7 @@ import {
   Drawer,
   Dropdown,
   Layout,
-  Menu,
+  Menu
 } from "antd";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
 import MenuItem from "antd/lib/menu/MenuItem";
@@ -47,18 +43,18 @@ export default function LayoutComponent({ children }: LayoutProps) {
     }
 
     return [
-      getItem("Option 1", "1", <PieChartOutlined />),
-      getItem("Option 2", "2", <DesktopOutlined />),
-      getItem("User", "sub1", <UserOutlined />, [
-        getItem("Tom", "3"),
-        getItem("Bill", "4"),
-        getItem("Alex", "5"),
-      ]),
-      getItem("Team", "sub2", <TeamOutlined />, [
-        getItem("Team 1", "6"),
-        getItem("Team 2", "8"),
-      ]),
-      getItem("Files", "9", <FileOutlined />),
+      getItem("Payments", "payment", <PieChartOutlined />),
+    //   getItem("Option 2", "2", <DesktopOutlined />),
+    //   getItem("User", "sub1", <UserOutlined />, [
+    //     getItem("Tom", "3"),
+    //     getItem("Bill", "4"),
+    //     getItem("Alex", "5"),
+    //   ]),
+    //   getItem("Team", "sub2", <TeamOutlined />, [
+    //     getItem("Team 1", "6"),
+    //     getItem("Team 2", "8"),
+    //   ]),
+    //   getItem("Files", "9", <FileOutlined />),
     ];
   }, []);
 
@@ -67,7 +63,7 @@ export default function LayoutComponent({ children }: LayoutProps) {
       <Menu
         items={[
           {
-            key: "1",
+            key: "logout",
             label: "Logout",
             onClick: () => signOut(),
           },
@@ -82,7 +78,7 @@ export default function LayoutComponent({ children }: LayoutProps) {
   return (
     <>
       <Head>
-        <title>Payments control</title>
+        <title>PACO</title>
       </Head>
       <Layout>
         <Header
@@ -91,7 +87,7 @@ export default function LayoutComponent({ children }: LayoutProps) {
         >
           <div className="ml-3">
             <Button
-              className="md:!hidden"
+              className="sm:!hidden"
               type="primary"
               icon={<MenuOutlined />}
               onClick={() => setVisible(true)}
@@ -110,7 +106,7 @@ export default function LayoutComponent({ children }: LayoutProps) {
         </Header>
 
         <Layout>
-          <Sider className="hidden md:block" theme="light">
+          <Sider className="hidden sm:block" theme="light">
             <Drawer
               placement="left"
               bodyStyle={drawerBodyStyle}
@@ -127,7 +123,7 @@ export default function LayoutComponent({ children }: LayoutProps) {
             <Menu
               defaultSelectedKeys={["1"]}
               mode="inline"
-              className="hidden md:block w-full"
+              className="hidden sm:block w-full"
               items={items as unknown as ItemType[]}
             />
           </Sider>
@@ -143,7 +139,7 @@ export default function LayoutComponent({ children }: LayoutProps) {
         <Footer
           style={{ textAlign: "center", background: "#001529", color: "white" }}
         >
-          Ant Design ©2018
+          PACO ©2022
         </Footer>
       </Layout>
     </>

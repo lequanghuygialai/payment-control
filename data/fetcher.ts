@@ -15,7 +15,7 @@ export function fetcher<DATA>(
     .request(requestConfig)
     .then((resp) => resp.data)
     .catch((err) => {
-      console.log({ err });
+      console.error({ err });
       throw {
         name: "500",
         message: "Server error",

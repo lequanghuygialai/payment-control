@@ -10,7 +10,6 @@ export function fetchPayments(
   pageIndex: number | undefined,
   pageSize: number | undefined
 ) {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { data, error, mutate } = useSWR(
     [`/api/Payments`, fromDate, toDate, pageIndex, pageSize],
     (url, fromDate, toDate, pageIndex, pageSize) =>
@@ -43,8 +42,39 @@ export function createPayment(form: PaymentForm) {
 
 export function updatePayment(form: PaymentForm) {
   return fetcher<Payment>({
-    url: `/api/Payments`,
+    url: `/api/Payments/${form.id}`,
     method: "PUT",
     data: form,
   });
+}
+
+export function deletePayment(id: string) {
+  return fetcher<Payment>({
+    url: `/api/Payments/${id}`,
+    method: "DELETE",
+  });
+}
+
+export function fetchTotalPayment(
+  fromDate: string | undefined,
+  toDate: string | undefined
+) {
+  const { data, error, mutate } = useSWR(
+    [`/api/Payments/Total`, fromDate, toDate],
+    (url, fromDate, toDate) =>
+      fetcher<number | null>({
+        url: url,
+        params: {
+          fromDate,
+          toDate,
+        },
+      })
+  );
+
+  return {
+    data,
+    isLoading: !error && !data,
+    isError: error,
+    mutate,
+  };
 }
