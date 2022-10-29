@@ -76,7 +76,7 @@ export default function PaymentModal({
           label="Type"
           rules={[{ required: true, message: "Missing type" }]}
         >
-          <Radio.Group>
+          <Radio.Group className="w-full">
             <Radio.Button value="Expense">Expense - Chi</Radio.Button>
             <Radio.Button value="Earning">Earning - Thu</Radio.Button>
           </Radio.Group>
@@ -97,6 +97,7 @@ export default function PaymentModal({
           ]}
         >
           <InputNumber
+            className="w-full"
             formatter={(value) =>
               `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
             }
@@ -113,7 +114,7 @@ export default function PaymentModal({
             { required: true, message: "Missing date" },
           ]}
         >
-          <DatePicker showTime={{ format: "HH:mm" }} />
+          <DatePicker className="w-full" showTime={{ format: "HH:mm" }} />
         </Form.Item>
       </Form>
     </Modal>

@@ -68,31 +68,29 @@ function PaymentPage({ session }: PaymentPageProps) {
         title: "Title",
         dataIndex: "title",
         width: 30,
-        ellipsis: true,
+        render: (_: any, record: Payment) => {
+          const color = record.type == "Expense" ? "volcano" : "geekblue";
+          const letterSign = record.type == "Expense" ? "Chi" : "Thu";
+          return (
+            <span>
+              <Tag className="mr-[5px]" color={color}>{letterSign.toUpperCase()}</Tag>
+              {record.title}
+            </span>
+          );
+        },
       },
       {
         title: "Total",
         dataIndex: "total",
-        width: 20,
-        ellipsis: true,
+        width: 15,
         render: (total: number) => {
           return <>{`${total}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</>;
         },
       },
       {
-        title: "Type",
-        dataIndex: "type",
-        width: 20,
-        ellipsis: true,
-        render: (type: string) => {
-          const color = type == "Expense" ? "volcano" : "geekblue";
-          return <Tag color={color}>{type.toUpperCase()}</Tag>;
-        },
-      },
-      {
         title: "Date",
         dataIndex: "date",
-        width: 30,
+        width: 15,
         ellipsis: true,
         render: (date: Date) => {
           return <Time date={date} />;
@@ -102,7 +100,7 @@ function PaymentPage({ session }: PaymentPageProps) {
         title: "Action",
         key: "action",
         fixed: "right",
-        width: 30,
+        width: 13,
         ellipsis: true,
         render: (_: any, record: Payment) => (
           <Space size="middle">

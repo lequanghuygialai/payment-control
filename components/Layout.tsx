@@ -87,7 +87,7 @@ export default function LayoutComponent({ children }: LayoutProps) {
         >
           <div className="ml-3">
             <Button
-              className="sm:!hidden"
+              className="xs:!hidden"
               type="primary"
               icon={<MenuOutlined />}
               onClick={() => setVisible(true)}
@@ -106,7 +106,7 @@ export default function LayoutComponent({ children }: LayoutProps) {
         </Header>
 
         <Layout>
-          <Sider className="hidden sm:block" theme="light">
+          <Sider className="hidden xs:block" theme="light">
             <Drawer
               placement="left"
               bodyStyle={drawerBodyStyle}
@@ -114,16 +114,16 @@ export default function LayoutComponent({ children }: LayoutProps) {
               open={visible}
             >
               <Menu
-                defaultSelectedKeys={["1"]}
+                defaultSelectedKeys={["payments"]}
                 mode="inline"
                 items={items as unknown as ItemType[]}
               />
             </Drawer>
 
             <Menu
-              defaultSelectedKeys={["1"]}
+              defaultSelectedKeys={["payments"]}
               mode="inline"
-              className="hidden sm:block w-full"
+              className="hidden xs:block w-full"
               items={items as unknown as ItemType[]}
             />
           </Sider>
