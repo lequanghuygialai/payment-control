@@ -16,6 +16,7 @@ export interface PaymentModalProps {
   isModalOpen: boolean;
   model: Payment | null;
   onSubmit: (data: PaymentForm) => void;
+  onDelete: (data: Payment) => void;
   onCancel: () => void;
 }
 
@@ -23,10 +24,10 @@ export default function PaymentModal({
   isModalOpen,
   model,
   onSubmit,
+  onDelete,
   onCancel,
 }: PaymentModalProps) {
   const [loading, setLoading] = useState(false);
-
   const [form] = Form.useForm<PaymentForm>();
   const handleFormSubmit = async (value: PaymentForm) => {
     setLoading(true);
@@ -38,6 +39,13 @@ export default function PaymentModal({
   const handleModalCancel = useCallback(() => {
     onCancel();
     form.resetFields();
+  }, []);
+
+  const handleDelete = useCallback(() => {
+    if (model != null) {
+      onDelete(model);
+      form.resetFields();
+    }
   }, []);
 
   useEffect(() => {
@@ -52,8 +60,19 @@ export default function PaymentModal({
       open={isModalOpen}
       onCancel={handleModalCancel}
       footer={[
+        model != null && (
+          <Button
+            danger
+            loading={loading}
+            key="delete"
+            onClick={() => onDelete(model)}
+          >
+            Delete
+          </Button>
+        ),
         <Button
           loading={loading}
+          type="primary"
           form="payment-form"
           key="submit"
           htmlType="submit"

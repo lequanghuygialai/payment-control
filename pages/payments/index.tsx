@@ -73,7 +73,9 @@ function PaymentPage({ session }: PaymentPageProps) {
           const letterSign = record.type == "Expense" ? "Chi" : "Thu";
           return (
             <span>
-              <Tag className="mr-[5px]" color={color}>{letterSign.toUpperCase()}</Tag>
+              <Tag className="mr-[5px]" color={color}>
+                {letterSign.toUpperCase()}
+              </Tag>
               {record.title}
             </span>
           );
@@ -82,7 +84,7 @@ function PaymentPage({ session }: PaymentPageProps) {
       {
         title: "Total",
         dataIndex: "total",
-        width: 15,
+        width: 25,
         render: (total: number) => {
           return <>{`${total}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</>;
         },
@@ -90,39 +92,11 @@ function PaymentPage({ session }: PaymentPageProps) {
       {
         title: "Date",
         dataIndex: "date",
-        width: 15,
+        width: 25,
         ellipsis: true,
         render: (date: Date) => {
           return <Time date={date} />;
         },
-      },
-      {
-        title: "Action",
-        key: "action",
-        fixed: "right",
-        width: 13,
-        ellipsis: true,
-        render: (_: any, record: Payment) => (
-          <Space size="middle">
-            <Button
-              type="default"
-              shape="circle"
-              icon={<EditOutlined />}
-              onClick={() => {
-                setPaymentItemSelected(record);
-                setOpenPaymentModal(true);
-              }}
-            />
-            <Button
-              type="ghost"
-              shape="circle"
-              icon={<DeleteOutlined />}
-              onClick={() => {
-                showDeleteConfirm(record);
-              }}
-            />
-          </Space>
-        ),
       },
     ],
     []
@@ -176,6 +150,7 @@ function PaymentPage({ session }: PaymentPageProps) {
       cancelText: "No",
       async onOk() {
         await deletePayment(payment.id);
+        setOpenPaymentModal(false);
         mutateAll();
       },
     });
@@ -266,7 +241,13 @@ function PaymentPage({ session }: PaymentPageProps) {
             defaultValue={dateRangeValue}
             onCalendarChange={(val) => setDateRangeValue(val)}
           />
-          <Button type="primary" onClick={() => setOpenPaymentModal(true)}>
+          <Button
+            type="primary"
+            onClick={() => {
+              setPaymentItemSelected(null);
+              setOpenPaymentModal(true);
+            }}
+          >
             Create
           </Button>
         </div>
@@ -279,7 +260,15 @@ function PaymentPage({ session }: PaymentPageProps) {
             dataSource={data?.items}
             pagination={tableParams.pagination}
             onChange={handleTableChange}
-            scroll={{ x: "calc(450px + 50%)" }}
+            // scroll={{ x: "calc(450px + 50%)" }}
+            onRow={(record) => {
+              return {
+                onClick: () => {
+                  setPaymentItemSelected(record);
+                  setOpenPaymentModal(true);
+                },
+              };
+            }}
           />
         </div>
       </div>
@@ -300,6 +289,7 @@ function PaymentPage({ session }: PaymentPageProps) {
           setOpenPaymentModal(false);
           mutateAll();
         }}
+        onDelete={(data: Payment) => showDeleteConfirm(data)}
       />
     </>
   );

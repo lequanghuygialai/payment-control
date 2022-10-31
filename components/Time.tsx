@@ -7,7 +7,7 @@ export interface TimeProps {
 
 export default function Time({ date }: TimeProps) {
   return (
-    <Moment locale="vi" format="ll">
+    <Moment locale="vi" format="DD-MM-YYYY">
       {date}
     </Moment>
   );
