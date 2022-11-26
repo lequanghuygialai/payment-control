@@ -41,13 +41,6 @@ export default function PaymentModal({
     form.resetFields();
   }, []);
 
-  const handleDelete = useCallback(() => {
-    if (model != null) {
-      onDelete(model);
-      form.resetFields();
-    }
-  }, []);
-
   useEffect(() => {
     if (model != null) {
       form.setFieldsValue(model);
@@ -133,7 +126,11 @@ export default function PaymentModal({
             { required: true, message: "Missing date" },
           ]}
         >
-          <DatePicker className="w-full" showTime={{ format: "HH:mm" }} />
+          <DatePicker
+            className="w-full"
+            inputReadOnly={true}
+            clearIcon={<></>}
+          />
         </Form.Item>
       </Form>
     </Modal>

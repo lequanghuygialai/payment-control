@@ -1,41 +1,30 @@
 import {
   ArrowDownOutlined,
   ArrowUpOutlined,
-  DeleteOutlined,
-  EditOutlined,
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import { Payment } from "@prisma/client";
-import {
-  Button,
-  DatePicker,
-  Modal,
-  Skeleton,
-  Space,
-  Statistic,
-  Tag,
-} from "antd";
+import { Button, DatePicker, Modal, Skeleton, Statistic, Tag } from "antd";
 import Table, { ColumnsType, TablePaginationConfig } from "antd/lib/table";
 import { FilterValue, SorterResult } from "antd/lib/table/interface";
 import { Session } from "inspector";
-import type { Moment } from "moment";
-import moment from "moment";
 import { GetServerSideProps } from "next";
 import { unstable_getServerSession } from "next-auth";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { authOptions } from "../../auth/auth";
-import LayoutComponent from "../../components/Layout";
-import PaymentModal from "../../components/payments/PaymentModal";
-import Time from "../../components/Time";
+import { authOptions } from "../auth/auth";
+import LayoutComponent from "../components/Layout";
+import PaymentModal from "../components/payments/PaymentModal";
+import Time from "../components/Time";
 import {
   createPayment,
   deletePayment,
   fetchPayments,
   fetchTotalPayment,
   updatePayment,
-} from "../../data/frontend";
-import { PaymentForm } from "../../data/models";
-import { TableParams } from "../../models/TableDataType";
+} from "../data/frontend";
+import { PaymentForm } from "../data/models";
+import { TableParams } from "../models/TableDataType";
+import moment, { Moment } from "moment";
 
 const { confirm } = Modal;
 const { RangePicker } = DatePicker;
@@ -260,7 +249,6 @@ function PaymentPage({ session }: PaymentPageProps) {
             dataSource={data?.items}
             pagination={tableParams.pagination}
             onChange={handleTableChange}
-            // scroll={{ x: "calc(450px + 50%)" }}
             onRow={(record) => {
               return {
                 onClick: () => {

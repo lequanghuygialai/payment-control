@@ -70,6 +70,8 @@ export const getServerSideProps: GetServerSideProps = async ({
   //   };
   // }
 
+  console.log(process.env.DATABASE_URL)
+
   return {
     props: {},
   };

@@ -2,6 +2,7 @@
 
 const nextConfig = {
   reactStrictMode: true,
+  output: 'standalone',
   swcMinify: true,
   pageExtensions: ['mdx', 'md', 'jsx', 'js', 'tsx', 'ts'],
   async redirects(){
@@ -12,6 +13,9 @@ const nextConfig = {
         permanent: false
       }
     ]
+  },
+  env: {
+    DATABASE_URL: process.env.DATABASE_URL
   }
 };
 

@@ -44,17 +44,6 @@ export default function LayoutComponent({ children }: LayoutProps) {
 
     return [
       getItem("Payments", "payment", <PieChartOutlined />),
-    //   getItem("Option 2", "2", <DesktopOutlined />),
-    //   getItem("User", "sub1", <UserOutlined />, [
-    //     getItem("Tom", "3"),
-    //     getItem("Bill", "4"),
-    //     getItem("Alex", "5"),
-    //   ]),
-    //   getItem("Team", "sub2", <TeamOutlined />, [
-    //     getItem("Team 1", "6"),
-    //     getItem("Team 2", "8"),
-    //   ]),
-    //   getItem("Files", "9", <FileOutlined />),
     ];
   }, []);
 
@@ -127,7 +116,7 @@ export default function LayoutComponent({ children }: LayoutProps) {
               items={items as unknown as ItemType[]}
             />
           </Sider>
-          <Content className="h-[100vh]">
+          <Content>
             <Breadcrumb style={{ margin: "16px 0.75rem" }}>
               <Breadcrumb.Item>Menu</Breadcrumb.Item>
               <Breadcrumb.Item>Breadcrumb</Breadcrumb.Item>
