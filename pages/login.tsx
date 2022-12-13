@@ -1,8 +1,10 @@
 import { Button, Form, Input } from "antd";
 import { GetServerSideProps } from "next";
+import { unstable_getServerSession } from "next-auth";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useCallback } from "react";
+import { authOptions } from "../auth/auth";
 import { ILogin } from "../common/validation/auth";
 
 function LoginPage() {
@@ -42,7 +44,7 @@ function LoginPage() {
 
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
         <Button type="primary" htmlType="submit">
-          Submit
+          Login
         </Button>
       </Form.Item>
     </Form>
@@ -58,19 +60,17 @@ export const getServerSideProps: GetServerSideProps = async ({
   res,
   params,
 }) => {
-  // const session = await unstable_getServerSession(req, res, authOptions);
+  const session = await unstable_getServerSession(req, res, authOptions);
 
-  // if (session?.user != null) {
-  //   //Authenticated
-  //   return {
-  //     redirect: {
-  //       destination: "/payments",
-  //       permanent: false,
-  //     },
-  //   };
-  // }
-
-  console.log(process.env.DATABASE_URL)
+  if (session?.user != null) {
+    //Authenticated
+    return {
+      redirect: {
+        destination: "/payments",
+        permanent: false,
+      },
+    };
+  }
 
   return {
     props: {},

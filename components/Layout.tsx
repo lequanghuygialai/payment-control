@@ -1,6 +1,7 @@
 import {
   MenuOutlined,
-  PieChartOutlined
+  PieChartOutlined,
+  UserOutlined
 } from "@ant-design/icons";
 import {
   Avatar,
@@ -89,12 +90,12 @@ export default function LayoutComponent({ children }: LayoutProps) {
               placement="bottom"
               trigger={["click"]}
             >
-              <Avatar src="https://joeschmoe.io/api/v1/random" />
+              <Avatar icon={<UserOutlined />} />
             </Dropdown>
           </div>
         </Header>
 
-        <Layout>
+        <Layout className="min-h-screen">
           <Sider className="hidden xs:block" theme="light">
             <Drawer
               placement="left"

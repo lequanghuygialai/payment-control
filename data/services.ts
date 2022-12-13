@@ -3,6 +3,7 @@ import { hash } from "argon2";
 import { ISignUp } from "../common/validation/auth";
 import { ListResponse } from "../models/TableDataType";
 import { prisma } from "../common/prisma";
+import { PaymentForm } from "./models";
 
 export async function findPayments(
   fromDate: string = "1900-01-01",
@@ -73,10 +74,16 @@ export async function sumPaymentTotal(
   return total._sum.total;
 }
 
-export async function insertPayment(data: Payment) {
+export async function insertPayment(data: PaymentForm & { createdBy: string }) {
   try {
     return await prisma.payment.create({
-      data: data,
+      data: {
+        title: data.title,
+        type: data.type,
+        date: data.date,
+        total: data.total,
+        createdBy: data.createdBy
+      },
     });
   } catch (e: any) {
     console.error(e.message);
@@ -84,13 +91,24 @@ export async function insertPayment(data: Payment) {
   }
 }
 
-export async function updatePayment(data: Payment) {
-  return await prisma.payment.update({
-    where: {
-      id: data.id,
-    },
-    data: data,
-  });
+export async function updatePayment(data: PaymentForm & { createdBy: string }) {
+  try {
+    return await prisma.payment.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        title: data.title,
+        type: data.type,
+        date: data.date,
+        total: data.total,
+        createdBy: data.createdBy
+      },
+    });
+  } catch (e: any) {
+    console.error(e.message);
+    throw e;
+  }
 }
 
 export async function deletePayment(id: string) {
