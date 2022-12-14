@@ -1,3 +1,5 @@
+import { PaymentType } from "@prisma/client";
+
 export interface PaymentForm {
   id?: string;
   type: PaymentType;
