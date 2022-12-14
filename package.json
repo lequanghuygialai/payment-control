@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build",
+    "vercel-build": "prisma generate && next build",
     "prisma:generate": "prisma generate",
     "start": "next start",
     "lint": "next lint"
@@ -22,7 +22,6 @@
     "next": "12.3.1",
     "next-auth": "^4.17.0",
     "postcss": "^8.4.16",
-    "prisma": "^4.4.0",
     "qs": "^6.11.0",
     "react": "18.2.0",
     "react-chartjs-2": "^4.3.1",
@@ -41,6 +40,7 @@
     "@types/react-highlight-words": "^0.16.4",
     "eslint": "8.24.0",
     "eslint-config-next": "12.3.1",
-    "typescript": "4.8.3"
+    "typescript": "4.8.3",
+    "prisma": "^4.4.0"
   }
 }
