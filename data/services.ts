@@ -1,4 +1,4 @@
-import { Payment } from "@prisma/client";
+import { Payment, PaymentType } from "@prisma/client";
 import { hash } from "argon2";
 import { ISignUp } from "../common/validation/auth";
 import { ListResponse } from "../models/TableDataType";
@@ -47,7 +47,7 @@ export async function findPayments(
 export async function sumPaymentTotal(
   fromDate: string = "1900-01-01",
   toDate: string = "2900-01-01",
-  type: string
+  type: PaymentType
 ) {
   const minDate = new Date(fromDate as string);
   minDate.setHours(0, 0, 0, 0);

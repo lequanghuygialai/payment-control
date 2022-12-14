@@ -1,3 +1,4 @@
+import { PaymentType } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../../../../auth/auth";
@@ -16,7 +17,7 @@ export default async function handler(
   if (req.method == "GET") {
     const { fromDate, toDate } = req.query;
 
-    return sumPaymentTotal(fromDate as string, toDate as string, "Expense")
+    return sumPaymentTotal(fromDate as string, toDate as string, PaymentType.EXPENSE)
       .then((resp) => {
         res.status(200).json(resp ?? 0);
       })

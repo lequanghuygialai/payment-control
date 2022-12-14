@@ -13,7 +13,7 @@ export default function AnonymousLayout({ children }: AnonymousLayoutProps) {
         <title>PACO</title>
       </Head>
       <Layout className="min-h-screen">
-        <Header></Header>
+        <Header>PACO</Header>
         <Content className="p-10 self-center">{children}</Content>
         <Footer
           style={{ textAlign: "center", background: "#001529", color: "white" }}

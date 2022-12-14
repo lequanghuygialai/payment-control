@@ -22,14 +22,20 @@ model User {
 }
 
 model Payment {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
   title     String
-  type      String
+  type      PaymentType @default(EXPENSE)
   date      DateTime
   total     Float
-  isDeleted Boolean  @default(false)
-  createdAt DateTime @default(now())
+  isDeleted Boolean     @default(false)
+  createdAt DateTime    @default(now())
   createdBy String
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime    @updatedAt
   updatedBy String?
+}
+
+enum PaymentType {
+  EXPENSE
+  EARNING
+  NOTE
 }

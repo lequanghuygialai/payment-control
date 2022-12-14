@@ -3,7 +3,7 @@ import {
   ArrowUpOutlined,
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
-import { Payment } from "@prisma/client";
+import { Payment, PaymentType } from "@prisma/client";
 import { Button, DatePicker, Modal, Skeleton, Statistic, Tag } from "antd";
 import Table, { ColumnsType, TablePaginationConfig } from "antd/lib/table";
 import { FilterValue, SorterResult } from "antd/lib/table/interface";
@@ -51,6 +51,34 @@ function PaymentPage({ session }: PaymentPageProps) {
   const [paymentItemSelected, setPaymentItemSelected] =
     useState<Payment | null>(null);
 
+  const tagColor = useCallback((paymentType: PaymentType) => {
+    switch (paymentType) {
+      case PaymentType.EARNING: {
+        return "geekblue";
+      }
+      case PaymentType.EXPENSE: {
+        return "volcano";
+      }
+      default: {
+        return "purple";
+      }
+    }
+  }, []);
+
+  const tagText = useCallback((paymentType: PaymentType) => {
+    switch (paymentType) {
+      case PaymentType.EARNING: {
+        return "Thu";
+      }
+      case PaymentType.EXPENSE: {
+        return "Chi";
+      }
+      default: {
+        return "Note";
+      }
+    }
+  }, []);
+
   const columns = useMemo<ColumnsType<Payment>>(
     () => [
       {
@@ -58,12 +86,10 @@ function PaymentPage({ session }: PaymentPageProps) {
         dataIndex: "title",
         width: 30,
         render: (_: any, record: Payment) => {
-          const color = record.type == "Expense" ? "volcano" : "geekblue";
-          const letterSign = record.type == "Expense" ? "Chi" : "Thu";
           return (
             <span>
-              <Tag className="mr-[5px]" color={color}>
-                {letterSign.toUpperCase()}
+              <Tag className="mr-[5px]" color={tagColor(record.type)}>
+                {tagText(record.type).toUpperCase()}
               </Tag>
               {record.title}
             </span>

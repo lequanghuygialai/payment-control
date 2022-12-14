@@ -1,4 +1,4 @@
-import { Payment } from "@prisma/client";
+import { Payment, PaymentType } from "@prisma/client";
 import {
   Button,
   DatePicker,
@@ -45,7 +45,7 @@ export default function PaymentModal({
     if (model != null) {
       form.setFieldsValue(model);
     }
-  }, [form, model]);
+  }, [form, model, isModalOpen]);
 
   return (
     <Modal
@@ -80,7 +80,7 @@ export default function PaymentModal({
         name="control-hooks"
         layout="vertical"
         onFinish={handleFormSubmit}
-        initialValues={{ type: "Expense" }}
+        initialValues={{ type: PaymentType.EXPENSE }}
       >
         <Form.Item name="id" hidden></Form.Item>
         <Form.Item
@@ -89,8 +89,13 @@ export default function PaymentModal({
           rules={[{ required: true, message: "Missing type" }]}
         >
           <Radio.Group className="w-full">
-            <Radio.Button value="Expense">Expense - Chi</Radio.Button>
-            <Radio.Button value="Earning">Earning - Thu</Radio.Button>
+            <Radio.Button value={PaymentType.EXPENSE}>
+              Expense - Chi
+            </Radio.Button>
+            <Radio.Button value={PaymentType.EARNING}>
+              Earning - Thu
+            </Radio.Button>
+            <Radio.Button value={PaymentType.NOTE}>Note - Ghi chú</Radio.Button>
           </Radio.Group>
         </Form.Item>
         <Form.Item

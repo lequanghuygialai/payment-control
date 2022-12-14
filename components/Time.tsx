@@ -1,3 +1,4 @@
+import moment from "moment";
 import React from "react";
 
 export interface TimeProps {
@@ -5,11 +6,5 @@ export interface TimeProps {
 }
 
 export default function Time({ date }: TimeProps) {
-  return (
-    // <Moment locale="vi" format="DD-MM-YYYY">
-    //   {date}
-    // </Moment>
-
-    <>{date}</>
-  );
+  return <>{moment(date).format("DD-MM-YYYY")}</>;
 }
