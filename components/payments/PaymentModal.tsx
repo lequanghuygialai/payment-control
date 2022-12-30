@@ -14,7 +14,7 @@ import { PaymentForm } from "../../data/models";
 
 export interface PaymentModalProps {
   isModalOpen: boolean;
-  model: Payment | null;
+  model?: Payment;
   onSubmit: (data: PaymentForm) => void;
   onDelete: (data: Payment) => void;
   onCancel: () => void;
@@ -42,7 +42,7 @@ export default function PaymentModal({
   }, []);
 
   useEffect(() => {
-    if (model != null) {
+    if (model) {
       form.setFieldsValue(model);
     }
   }, [form, model, isModalOpen]);
@@ -124,7 +124,7 @@ export default function PaymentModal({
           name="date"
           label="Date"
           required
-          getValueProps={(value) => ({ value: moment(value) })}
+          getValueProps={(value) => ({ value: moment(value).toDate() })}
           initialValue={moment().format("YYYY-MM-DDTHH:mm:ssZ")}
           rules={[
             { type: "date" },
@@ -133,6 +133,7 @@ export default function PaymentModal({
         >
           <DatePicker
             className="w-full"
+            format="dd-mm-yyyy"
             inputReadOnly={true}
             clearIcon={<></>}
           />

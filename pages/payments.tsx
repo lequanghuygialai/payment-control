@@ -48,8 +48,7 @@ function PaymentPage({ session }: PaymentPageProps) {
       pageSize: 10,
     },
   });
-  const [paymentItemSelected, setPaymentItemSelected] =
-    useState<Payment | null>(null);
+  const [paymentItemSelected, setPaymentItemSelected] = useState<Payment>();
 
   const tagColor = useCallback((paymentType: PaymentType) => {
     switch (paymentType) {
@@ -259,7 +258,7 @@ function PaymentPage({ session }: PaymentPageProps) {
           <Button
             type="primary"
             onClick={() => {
-              setPaymentItemSelected(null);
+              setPaymentItemSelected(undefined);
               setOpenPaymentModal(true);
             }}
           >
@@ -292,6 +291,7 @@ function PaymentPage({ session }: PaymentPageProps) {
         model={paymentItemSelected}
         onCancel={() => {
           setOpenPaymentModal(false);
+          setPaymentItemSelected(undefined);
         }}
         onSubmit={async (data: PaymentForm) => {
           if (data.id == null) {
