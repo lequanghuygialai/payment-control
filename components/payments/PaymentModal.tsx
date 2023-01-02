@@ -124,7 +124,7 @@ export default function PaymentModal({
           name="date"
           label="Date"
           required
-          getValueProps={(value) => ({ value: moment(value).toDate() })}
+          getValueProps={(value) => ({ value: moment(value) })}
           initialValue={moment().format("YYYY-MM-DDTHH:mm:ssZ")}
           rules={[
             { type: "date" },
@@ -133,7 +133,7 @@ export default function PaymentModal({
         >
           <DatePicker
             className="w-full"
-            format="dd-mm-yyyy"
+            format="DD-mm-yyyy"
             inputReadOnly={true}
             clearIcon={<></>}
           />
